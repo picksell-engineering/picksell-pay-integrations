@@ -30,9 +30,8 @@ class WC_PicksellPay_API {
 	public static function createOrder($order) {
 		$request = array(
 			'totalAmount'	=> $order->get_total(),
-			// 'currency'		=> $order->get_currency(),
 			'currency'		=> 'EUR',
-			'description'	=> 'WooCommerce Payment',
+			'description'	=> 'WC Order id ' . $order->get_id(),
 		);
 
 		$response = wp_remote_post(
@@ -40,13 +39,18 @@ class WC_PicksellPay_API {
 			array(
 				'method'	=> 'POST',
 				'headers'	=> self::get_headers(),
-				'timeout'	=> 70,
 				'body'   	=> json_encode($request),
+				'timeout'	=> 15,
 			)
 		);
 
 		$response_body = json_decode( $response['body'] );
-		return $response_body->payload->id;
+
+		if (property_exists($response_body, 'payload')) {
+            return $response_body->payload->id;
+        }
+
+		return null;
 	}
 
 	public static function get_sdk_url() {

@@ -4,13 +4,13 @@ services:
   db:
     image: mariadb:latest
     ports:
-      - ${DB_EXTERNAL_PORT}:3306
+      - 3306:3306
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      MYSQL_DATABASE: ${DB_DATABASE}
-      MYSQL_USER: ${DB_USER}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: wordpress
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
     volumes:
       - ./data/:/var/lib/mysql
 
@@ -19,13 +19,13 @@ services:
       - db
     image: wordpress:latest
     ports:
-      - ${WP_EXTERNAL_PORT}:80
+      - 8000:80
     restart: always
     environment:
-      WORDPRESS_DB_HOST: ${DB_HOST}:${DB_EXTERNAL_PORT}
-      WORDPRESS_DB_NAME: ${DB_DATABASE}
-      WORDPRESS_DB_USER: ${DB_USER}
-      WORDPRESS_DB_PASSWORD: ${DB_PASSWORD}
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
       WORDPRESS_DEBUG: 1
     volumes:
       - ./wp/:/var/www/html
@@ -39,11 +39,11 @@ services:
     command: >
       /bin/sh -c '
       sleep 30;
-      wp core install --path="/var/www/html" --url="${WP_URL}:${WP_EXTERNAL_PORT}" --title="Picksell WooCommerce" --admin_user=${WP_USER} --admin_password=${WP_PASSWORD} --admin_email=${WP_EMAIL} --allow-root;
-      wp plugin install woocommerce --version=${WOOCOMMERCE_VERSION} --activate --allow-root;
+      wp core install --path="/var/www/html" --url="localhost:8000" --title="Picksell WooCommerce" --admin_user=picksell --admin_password=picksell --admin_email=picksell@psd2.club --allow-root;
+      wp plugin install woocommerce --version=5.0.0 --activate --allow-root;
       wp theme install storefront --activate --allow-root;
       wp plugin install wordpress-importer --activate --allow-root;
-      wp import wp-content/plugins/woocommerce/*/*.xml --authors=create --allow-root;
+      wp import /var/www/html/wp-content/plugins/woocommerce/*/*.xml --authors=create --allow-root;
       '
     volumes:
       - ./wp/:/var/www/html

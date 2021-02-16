@@ -3,7 +3,7 @@
 /**
  * Plugin Name: Picksell Pay
  * Description: Acceptance of payments through the system Picksell Pay
- * Author: PiksellPay
+ * Author: PicksellPay
  * Version: 0.0.1
  */
 
