@@ -75,8 +75,10 @@ function pp_init_gateway_class() {
                 );
             };
 
-            $order->add_order_note( "Picksell Pay OrderId: " . $picksell_order_id );
             $order->update_status( 'pending', 'Payment pending' );
+
+            $order->update_meta_data( '_picksell_pay_order_id', $picksell_order_id, true );
+            $order->save();
 
             WC()->cart->empty_cart();
 
@@ -84,6 +86,18 @@ function pp_init_gateway_class() {
                 'result'   => 'success',
                 'redirect' => WC_PicksellPay_API::get_order_page_url($picksell_order_id),
             );
+        }
+
+        public static function get_order_by_picksell_id( $picksell_order_id ) {
+            global $wpdb;
+    
+            $order_id = $wpdb->get_var( $wpdb->prepare( "SELECT DISTINCT ID FROM $wpdb->posts as posts LEFT JOIN $wpdb->postmeta as meta ON posts.ID = meta.post_id WHERE meta.meta_value = %s AND meta.meta_key = %s", $picksell_order_id, '_picksell_pay_order_id' ) );
+    
+            if ( ! empty( $order_id ) ) {
+                return wc_get_order( $order_id );
+            }
+    
+            return false;
         }
     }
     
