@@ -22,11 +22,11 @@ class WC_Webhook_Handler_Picksell_Pay extends WC_Gateway_Picksell_Pay {
 		if ($this->is_valid_request($raw_request_body)) {
 			$this->process_webhook($raw_request_body);
 			status_header(200);
-			exit;
 		} else {
 			status_header(400);
-			exit;
 		}
+
+		exit;
 	}
 
 	public function is_valid_request($raw_request_body) {

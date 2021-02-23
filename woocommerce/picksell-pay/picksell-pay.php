@@ -6,7 +6,6 @@
  * Author: PicksellPay
  * Version: 0.0.1
  */
-
 if (!defined('ABSPATH')) {
 	exit;
 }
@@ -52,6 +51,7 @@ function woocommerce_gateway_picksell_pay() {
 				return $methods;
 			}
 		}
+
 		$plugin = WC_Picksell_Pay::get_instance();
 
 	}

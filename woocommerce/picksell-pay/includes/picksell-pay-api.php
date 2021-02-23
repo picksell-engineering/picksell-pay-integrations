@@ -1,4 +1,5 @@
 <?php
+
 if (!defined('ABSPATH')) {
 	exit;
 }
@@ -31,13 +32,14 @@ class WC_PicksellPay_API {
 		/*
 			todo:
 			1. check available currency
-			2. add callback url and return url
-			3. make description?
+			2. make description?
 		*/
-		$request = array(
+		$request_body = array(
 			'totalAmount' => $order->get_total(),
 			'currency' => 'EUR',
 			'description' => 'WC Order id ' . $order->get_id(),
+			'callbackUrl' => get_option('siteUrl') . '?wc-api=wc_picksell_pay',
+			'returnUrl' => get_option('siteUrl') . '?page_id=8&view-order=' . $order->get_id(),
 		);
 
 		$response = wp_remote_post(
@@ -45,7 +47,7 @@ class WC_PicksellPay_API {
 			array(
 				'method' => 'POST',
 				'headers' => self::get_headers(),
-				'body' => json_encode($request),
+				'body' => json_encode($request_body),
 				'timeout' => 15,
 			)
 		);
