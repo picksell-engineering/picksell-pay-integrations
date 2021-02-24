@@ -61,7 +61,7 @@ class WC_Webhook_Handler_Picksell_Pay extends WC_Gateway_Picksell_Pay {
 		$body = json_decode($raw_request_body);
 
 		$status = $body->status;
-		$picksell_order_id = $body->picksell_order_id;
+		$picksell_order_id = $body->picksellOrderId;
 
 		switch ($status) {
 		case 'success':
