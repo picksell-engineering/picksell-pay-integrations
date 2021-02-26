@@ -77,7 +77,6 @@ class WC_Gateway_Picksell_Pay extends WC_Payment_Gateway {
 
 		if (!$picksell_order_id) {
 			return array(
-				//throw new Exception('Order amount is too small', wc_price($this->get_minimum_amount()));
 				'result' => 'fail',
 				'redirect' => '',
 			);

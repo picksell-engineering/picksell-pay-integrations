@@ -29,12 +29,16 @@ class WC_PicksellPay_API {
 	}
 
 	public static function create_picksell_order($order) {
+		$total_amount = $order->get_total();
+		$currency = $order->get_currency();
+		$order_id = $order->get_id();
+
 		$request_body = array(
-			'totalAmount' => $order->get_total(),
-			'currency' => $order->get_currency(),
-			'description' => 'WC Order id ' . $order->get_id(),
+			'totalAmount' => $total_amount,
+			'currency' => $currency,
+			'description' => 'New WooCommerce Order ' . $order_id,
 			'callbackUrl' => self::get_callbacl_url(),
-			'returnUrl' => self::get_return_url($order),
+			'returnUrl' => self::get_return_url($order_id),
 		);
 
 		$response = wp_remote_post(
@@ -68,7 +72,7 @@ class WC_PicksellPay_API {
 		return get_option('siteUrl') . '?wc-api=wc_picksell_pay';
 	}
 
-	public static function get_return_url($order) {
-		return get_option('siteUrl') . '?page_id=8&view-order=' . $order->get_id();
+	public static function get_return_url($order_id) {
+		return wc_get_account_endpoint_url('view-order') . '=' . $order_id;
 	}
 }
