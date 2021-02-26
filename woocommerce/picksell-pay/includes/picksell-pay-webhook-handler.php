@@ -76,7 +76,7 @@ class WC_Webhook_Handler_Picksell_Pay extends WC_Gateway_Picksell_Pay {
 	public static function get_order_by_picksell_id($picksell_order_id) {
 		global $wpdb;
 
-		$order_id = $wpdb->get_var($wpdb->prepare("SELECT DISTINCT ID FROM $wpdb->posts as posts LEFT JOIN $wpdb->postmeta as meta ON posts.ID = meta.post_id WHERE meta.meta_value = %s AND meta.meta_key = %s", $picksell_order_id, '_picksell_pay_order_id'));
+		$order_id = $wpdb->get_var($wpdb->prepare("SELECT DISTINCT ID FROM $wpdb->posts as posts LEFT JOIN $wpdb->postmeta as meta ON posts.ID = meta.post_id WHERE meta.meta_value = %s AND meta.meta_key = %s", $picksell_order_id, 'picksell_order_id'));
 
 		if (!empty($order_id)) {
 			return wc_get_order($order_id);

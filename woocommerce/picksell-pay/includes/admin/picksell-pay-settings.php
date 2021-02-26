@@ -11,7 +11,7 @@ return apply_filters(
 			'title' => __('Enable/Disable', 'woocommerce'),
 			'type' => 'checkbox',
 			'label' => 'Enable payment with Picksell.Pay',
-			'default' => 'yes',
+			'default' => 'no',
 			'description' => '<a href="https://picksell.eu" target="_blank">Additional information</a>',
 		),
 		'title' => array(
@@ -21,8 +21,14 @@ return apply_filters(
 			'default' => 'Picksell Pay',
 			'desc_tip' => true,
 		),
-		'token' => array(
-			'title' => 'Merchant token',
+		'dev_token' => array(
+			'title' => 'Merchant token (DEV)',
+			'description' => 'You can get a token in your personal account',
+			'type' => 'text',
+			'default' => '',
+		),
+		'prod_token' => array(
+			'title' => 'Merchant token (PROD)',
 			'description' => 'You can get a token in your personal account',
 			'type' => 'text',
 			'default' => '',

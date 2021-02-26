@@ -16,8 +16,8 @@ class WC_Gateway_Picksell_Pay extends WC_Payment_Gateway {
 		$this->init_settings();
 
 		$this->title = $this->get_option('title');
-		$this->token = $this->get_option('token');
 		$this->dev_mode = $this->get_option('dev_mode');
+		$this->token = $this->dev_mode === 'yes' ? $this->get_option('dev_token') : $this->get_option('prod_token');
 
 		WC_PicksellPay_API::set_token($this->token);
 		WC_PicksellPay_API::set_environment($this->dev_mode);
@@ -29,32 +29,55 @@ class WC_Gateway_Picksell_Pay extends WC_Payment_Gateway {
 		$this->form_fields = require dirname(__FILE__) . '/admin/picksell-pay-settings.php';
 	}
 
-	public function get_supported_currency() {
-		return apply_filters(
-			'wc_picksell_pay_supported_currencies',
-			array(
-				'EUR',
-				'GBP',
-			)
-		);
-	}
-
 	public function is_available() {
 		if (!in_array(get_woocommerce_currency(), $this->get_supported_currency())) {
 			return false;
 		}
 
-		//todo: maybe add othec check, example total amount order
+		return true;
+	}
+
+	public function get_supported_currency() {
+		return apply_filters(
+			'wc_picksell_pay_supported_currencies',
+			array(
+				'EUR',
+			)
+		);
+	}
+
+	public function order_amount_is_valid($order) {
+		if ($order->get_total() < $this->get_minimum_amount()) {
+			return false;
+		}
 
 		return true;
 	}
 
+	public static function get_minimum_amount() {
+		switch (get_woocommerce_currency()) {
+		case 'EUR':
+			return 0.01;
+		default:
+			return 0.01;
+		}
+	}
+
 	public function process_payment($order_id) {
 		$order = new WC_Order($order_id);
+
+		if ($this->order_amount_is_valid($order) === false) {
+			return array(
+				'result' => 'fail',
+				'redirect' => '',
+			);
+		}
+
 		$picksell_order_id = WC_PicksellPay_API::create_picksell_order($order);
 
 		if (!$picksell_order_id) {
 			return array(
+				//throw new Exception('Order amount is too small', wc_price($this->get_minimum_amount()));
 				'result' => 'fail',
 				'redirect' => '',
 			);
@@ -62,7 +85,7 @@ class WC_Gateway_Picksell_Pay extends WC_Payment_Gateway {
 
 		$order->update_status('pending', 'Payment pending');
 
-		$order->update_meta_data('_picksell_pay_order_id', $picksell_order_id, true);
+		$order->update_meta_data('picksell_order_id', $picksell_order_id, true);
 		$order->save();
 
 		WC()->cart->empty_cart();

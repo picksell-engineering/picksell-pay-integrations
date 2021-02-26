@@ -11,7 +11,7 @@ class WC_PicksellPay_API {
 	const SHOPPING_URL_PROD = 'https://shopping.psd2.club'; // todo: change on prod url
 
 	private static $token = '';
-	private static $dev_mode = true;
+	private static $dev_mode = false;
 
 	public static function set_token($token) {
 		self::$token = $token;
