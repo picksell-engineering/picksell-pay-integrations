@@ -41,7 +41,7 @@ class WC_Webhook_Handler_Picksell_Pay extends WC_Gateway_Picksell_Pay {
 			return;
 		}
 
-		$message = __('This payment failed to clear.', 'woocommerce-gateway-picksell-pay');
+		$message = 'This payment is failed';
 		$order->update_status('failed', $message);
 		$order->save();
 	}
