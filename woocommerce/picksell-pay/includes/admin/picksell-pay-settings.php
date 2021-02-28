@@ -23,13 +23,25 @@ return apply_filters(
 		),
 		'dev_token' => array(
 			'title' => 'Merchant token (DEV)',
-			'description' => 'You can get a token in your personal account',
+			'description' => 'You can get the token in your personal account',
 			'type' => 'text',
 			'default' => '',
 		),
 		'prod_token' => array(
 			'title' => 'Merchant token (PROD)',
-			'description' => 'You can get a token in your personal account',
+			'description' => 'You can get the token in your personal account',
+			'type' => 'text',
+			'default' => '',
+		),
+		'dev_private_key' => array(
+			'title' => 'Private key (DEV)',
+			'description' => 'You can get the token in your personal account',
+			'type' => 'text',
+			'default' => '',
+		),
+		'prod_private_key' => array(
+			'title' => 'Private key (PROD)',
+			'description' => 'You can get the private key in your personal account',
 			'type' => 'text',
 			'default' => '',
 		),

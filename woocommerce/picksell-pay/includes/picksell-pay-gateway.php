@@ -19,6 +19,8 @@ class WC_Gateway_Picksell_Pay extends WC_Payment_Gateway {
 		$this->dev_mode = $this->get_option('dev_mode');
 		$this->token = $this->dev_mode === 'yes' ? $this->get_option('dev_token') : $this->get_option('prod_token');
 
+		update_option('woocommerce_picksell_pay_private_key', $this->dev_mode === 'yes' ? $this->get_option('dev_private_key') : $this->get_option('prod_private_key'));
+
 		WC_PicksellPay_API::set_token($this->token);
 		WC_PicksellPay_API::set_environment($this->dev_mode);
 
@@ -31,6 +33,10 @@ class WC_Gateway_Picksell_Pay extends WC_Payment_Gateway {
 
 	public function is_available() {
 		if (!in_array(get_woocommerce_currency(), $this->get_supported_currency())) {
+			return false;
+		}
+
+		if (empty($this->token) || empty(get_option('woocommerce_picksell_pay_private_key'))) {
 			return false;
 		}
 

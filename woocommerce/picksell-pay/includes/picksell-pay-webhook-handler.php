@@ -6,6 +6,8 @@ if (!defined('ABSPATH')) {
 
 class WC_Webhook_Handler_Picksell_Pay extends WC_Gateway_Picksell_Pay {
 	public function __construct() {
+		$this->private_key = get_option('woocommerce_picksell_pay_private_key');
+
 		add_action('woocommerce_api_wc_picksell_pay', array($this, 'check_for_webhook'));
 	}
 
@@ -30,8 +32,14 @@ class WC_Webhook_Handler_Picksell_Pay extends WC_Gateway_Picksell_Pay {
 	}
 
 	public function is_valid_request($raw_request_body) {
-		//todo: implement this in the future
-		return true;
+		$request_headers = array_change_key_case($this->get_request_headers(), CASE_UPPER);
+		$expected_signature = hash_hmac('sha256', $raw_request_body, $this->private_key);
+
+		if ($request_headers['PICKSELL-SIGNATURE'] === $expected_signature) {
+			return true;
+		}
+
+		return false;
 	}
 
 	public function fail_payment($picksell_order_id) {
@@ -57,11 +65,11 @@ class WC_Webhook_Handler_Picksell_Pay extends WC_Gateway_Picksell_Pay {
 		$order->save();
 	}
 
-	public function process_webhook($raw_request_body) {
-		$body = json_decode($raw_request_body);
+	public function process_webhook($request_raw_body) {
+		$request_body = json_decode($request_raw_body);
 
-		$status = $body->status;
-		$picksell_order_id = $body->picksellOrderId;
+		$status = $request_body->status;
+		$picksell_order_id = $request_body->picksellOrderId;
 
 		switch ($status) {
 		case 'success':
@@ -73,7 +81,7 @@ class WC_Webhook_Handler_Picksell_Pay extends WC_Gateway_Picksell_Pay {
 		}
 	}
 
-	public static function get_order_by_picksell_id($picksell_order_id) {
+	public function get_order_by_picksell_id($picksell_order_id) {
 		global $wpdb;
 
 		$order_id = $wpdb->get_var($wpdb->prepare("SELECT DISTINCT ID FROM $wpdb->posts as posts LEFT JOIN $wpdb->postmeta as meta ON posts.ID = meta.post_id WHERE meta.meta_value = %s AND meta.meta_key = %s", $picksell_order_id, 'picksell_order_id'));
@@ -83,6 +91,22 @@ class WC_Webhook_Handler_Picksell_Pay extends WC_Gateway_Picksell_Pay {
 		}
 
 		return false;
+	}
+
+	public function get_request_headers() {
+		if (!function_exists('getallheaders')) {
+			$headers = array();
+
+			foreach ($_SERVER as $name => $value) {
+				if ('HTTP_' === substr($name, 0, 5)) {
+					$headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
+				}
+			}
+
+			return $headers;
+		} else {
+			return getallheaders();
+		}
 	}
 }
 
