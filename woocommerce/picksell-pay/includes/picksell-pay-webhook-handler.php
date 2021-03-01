@@ -20,8 +20,9 @@ class WC_Webhook_Handler_Picksell_Pay extends WC_Gateway_Picksell_Pay {
 		}
 
 		$raw_request_body = file_get_contents('php://input');
+		$request_headers = array_change_key_case($this->get_request_headers(), CASE_UPPER);
 
-		if ($this->is_valid_request($raw_request_body)) {
+		if ($this->is_valid_request($request_headers, $raw_request_body)) {
 			$this->process_webhook($raw_request_body);
 			status_header(200);
 		} else {
@@ -31,11 +32,18 @@ class WC_Webhook_Handler_Picksell_Pay extends WC_Gateway_Picksell_Pay {
 		exit;
 	}
 
-	public function is_valid_request($raw_request_body) {
-		$request_headers = array_change_key_case($this->get_request_headers(), CASE_UPPER);
+	public function is_valid_request($request_headers, $raw_request_body) {
+		if (empty($request_headers) || empty($raw_request_body)) {
+			return false;
+		}
+
+		if (empty($request_headers['PICKSELL-SIGNATURE'])) {
+			return false;
+		}
+
 		$expected_signature = hash_hmac('sha256', $raw_request_body, $this->private_key);
 
-		if ($request_headers['PICKSELL-SIGNATURE'] === $expected_signature) {
+		if (hash_equals($request_headers['PICKSELL-SIGNATURE'], $expected_signature)) {
 			return true;
 		}
 
@@ -102,9 +110,10 @@ class WC_Webhook_Handler_Picksell_Pay extends WC_Gateway_Picksell_Pay {
 					$headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
 				}
 			}
-
 			return $headers;
+
 		} else {
+
 			return getallheaders();
 		}
 	}

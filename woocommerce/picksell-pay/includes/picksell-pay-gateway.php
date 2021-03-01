@@ -80,6 +80,8 @@ class WC_Gateway_Picksell_Pay extends WC_Payment_Gateway {
 		}
 
 		$picksell_order_id = WC_PicksellPay_API::create_picksell_order($order);
+		wc_get_logger()->debug('picksell_order_id');
+		wc_get_logger()->debug($picksell_order_id);
 
 		if (!$picksell_order_id) {
 			return array(
