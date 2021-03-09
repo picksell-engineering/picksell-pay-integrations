@@ -48,11 +48,11 @@ class WC_Webhook_Handler_Picksell_Pay extends WC_Gateway_Picksell_Pay {
 		}
 
 		$timestamp = intval($matches['timestamp']);
-		if (abs($timestamp - time()) > 5 * MINUTE_IN_SECONDS) {
+		if (abs($timestamp - time()) < 5 * MINUTE_IN_SECONDS) {
 			return false;
 		}
 
-		$signed_payload = $timestamp . '.' . $request_body;
+		$signed_payload = $timestamp . '.' . $raw_request_body;
 		$expected_signature = hash_hmac('sha256', $signed_payload, $this->private_key);
 
 		if (hash_equals($matches['signature'], $expected_signature)) {
@@ -109,7 +109,7 @@ class WC_Webhook_Handler_Picksell_Pay extends WC_Gateway_Picksell_Pay {
 		return array('result' => $message, 'status' => $status);
 	}
 
-	public function total_amount_($order, $request_total_amount) {
+	public function check_total_amount($order, $request_total_amount) {
 		if ($order->get_total() === $request_total_amount) {
 			return true;
 		}
