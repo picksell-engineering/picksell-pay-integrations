@@ -23,10 +23,11 @@ class WC_Webhook_Handler_Picksell_Pay extends WC_Gateway_Picksell_Pay {
 		$request_headers = array_change_key_case($this->get_request_headers(), CASE_UPPER);
 
 		if ($this->is_valid_request($request_headers, $raw_request_body)) {
-			$this->process_webhook($raw_request_body);
-			status_header(200);
+			$result = $this->process_webhook($raw_request_body);
+			wp_send_json($result, $result['status']);
 		} else {
-			status_header(400);
+			$res = $this->make_response('request is not valid', 400);
+			wp_send_json($res, $res['status']);
 		}
 
 		exit;
@@ -37,38 +38,40 @@ class WC_Webhook_Handler_Picksell_Pay extends WC_Gateway_Picksell_Pay {
 			return false;
 		}
 
-		if (empty($request_headers['PICKSELL-SIGNATURE'])) {
+		if (empty($this->private_key)) {
 			return false;
 		}
 
-		$expected_signature = hash_hmac('sha256', $raw_request_body, $this->private_key);
+		$signature_format = '/^t=(?P<timestamp>\d+)(?P<signature>(;s=[a-z0-9]+){1,2})$/';
+		if (empty($request_headers['PICKSELL-SIGNATURE']) || !preg_match($signature_format, $request_headers['PICKSELL-SIGNATURE'], $matches)) {
+			return false;
+		}
 
-		if (hash_equals($request_headers['PICKSELL-SIGNATURE'], $expected_signature)) {
+		$timestamp = intval($matches['timestamp']);
+		if (abs($timestamp - time()) > 5 * MINUTE_IN_SECONDS) {
+			return false;
+		}
+
+		$signed_payload = $timestamp . '.' . $request_body;
+		$expected_signature = hash_hmac('sha256', $signed_payload, $this->private_key);
+
+		$signature = $matches['signature'];
+
+		if (hash_equals($signature, $expected_signature)) {
 			return true;
 		}
 
 		return false;
 	}
 
-	public function fail_payment($picksell_order_id) {
-		$order = $this->get_order_by_picksell_id($picksell_order_id);
-
-		if (!$order) {
-			return;
-		}
-
+	public function fail_payment($order) {
 		$message = 'This payment is failed';
 		$order->update_status('failed', $message);
 		$order->save();
+
 	}
 
-	public function success_payment($picksell_order_id) {
-		$order = $this->get_order_by_picksell_id($picksell_order_id);
-
-		if (!$order) {
-			return;
-		}
-
+	public function success_payment($order) {
 		$order->payment_complete();
 		$order->save();
 	}
@@ -77,16 +80,41 @@ class WC_Webhook_Handler_Picksell_Pay extends WC_Gateway_Picksell_Pay {
 		$request_body = json_decode($request_raw_body);
 
 		$status = $request_body->status;
-		$picksell_order_id = $request_body->picksellOrderId;
+		$picksell_order_id = $request_body->sourceId;
+		$request_total_amount = $request_body->totalAmount;
+
+		$order = $this->get_order_by_picksell_id($picksell_order_id);
+
+		if (!$order) {
+			return $this->make_response('woocommerce order not found', 404);
+		}
+
+		if (!$this->check_total_amount($order, $request_total_amount)) {
+			return $this->make_response('woocommerce order total amount is not equal picksell order', 400);
+		}
 
 		switch ($status) {
 		case 'success':
-			$this->success_payment($picksell_order_id);
+			$this->success_payment($order);
 			break;
 		case 'fail':
-			$this->fail_payment($picksell_order_id);
+			$this->fail_payment($order);
 			break;
 		}
+
+		return $this->make_response('success request', 200);
+	}
+
+	public function make_response($message, $status) {
+		return array('result' => $message, 'status' => $status);
+	}
+
+	public function total_amount_($order, $request_total_amount) {
+		if ($order->get_total() === $request_total_amount) {
+			return true;
+		}
+
+		return false;
 	}
 
 	public function get_order_by_picksell_id($picksell_order_id) {
@@ -113,7 +141,6 @@ class WC_Webhook_Handler_Picksell_Pay extends WC_Gateway_Picksell_Pay {
 			return $headers;
 
 		} else {
-
 			return getallheaders();
 		}
 	}
