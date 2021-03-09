@@ -42,7 +42,7 @@ class WC_Webhook_Handler_Picksell_Pay extends WC_Gateway_Picksell_Pay {
 			return false;
 		}
 
-		$signature_format = '/^t=(?P<timestamp>\d+);s=(?P<signature>([a-z0-9]+))$/';
+		$signature_format = '/^t=(?P<timestamp>\d+);s=(?P<signature>[A-Fa-f0-9]{64})$/';
 		if (empty($request_headers['PICKSELL-SIGNATURE']) || !preg_match($signature_format, $request_headers['PICKSELL-SIGNATURE'], $matches)) {
 			return false;
 		}
