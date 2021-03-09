@@ -42,7 +42,7 @@ class WC_Webhook_Handler_Picksell_Pay extends WC_Gateway_Picksell_Pay {
 			return false;
 		}
 
-		$signature_format = '/^t=(?P<timestamp>\d+)(?P<signature>(;s=[a-z0-9]+){1,2})$/';
+		$signature_format = '/^t=(?P<timestamp>\d+);s=(?P<signature>([a-z0-9]+))$/';
 		if (empty($request_headers['PICKSELL-SIGNATURE']) || !preg_match($signature_format, $request_headers['PICKSELL-SIGNATURE'], $matches)) {
 			return false;
 		}
@@ -55,9 +55,7 @@ class WC_Webhook_Handler_Picksell_Pay extends WC_Gateway_Picksell_Pay {
 		$signed_payload = $timestamp . '.' . $request_body;
 		$expected_signature = hash_hmac('sha256', $signed_payload, $this->private_key);
 
-		$signature = $matches['signature'];
-
-		if (hash_equals($signature, $expected_signature)) {
+		if (hash_equals($matches['signature'], $expected_signature)) {
 			return true;
 		}
 
@@ -100,6 +98,8 @@ class WC_Webhook_Handler_Picksell_Pay extends WC_Gateway_Picksell_Pay {
 		case 'fail':
 			$this->fail_payment($order);
 			break;
+		default:
+			return $this->make_response('unknown status', 400);
 		}
 
 		return $this->make_response('success request', 200);
