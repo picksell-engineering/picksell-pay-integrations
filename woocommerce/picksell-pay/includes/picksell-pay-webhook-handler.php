@@ -42,12 +42,11 @@ class WC_Webhook_Handler_Picksell_Pay extends WC_Gateway_Picksell_Pay {
 			return false;
 		}
 
-		$signature_format = '/^t=(?P<timestamp>\d+);s=(?P<signature>[A-Fa-f0-9]{64})$/';
-		if (empty($request_headers['PICKSELL-SIGNATURE']) || !preg_match($signature_format, $request_headers['PICKSELL-SIGNATURE'], $matches)) {
+		if (empty($request_headers['PICKSELL-SIGNATURE']) || empty($request_headers['PICKSELL-TIMESTAMP'])) {
 			return false;
 		}
 
-		$timestamp = intval($matches['timestamp']);
+		$timestamp = intval($request_headers['PICKSELL-TIMESTAMP']);
 		if (abs($timestamp - time()) < 5 * MINUTE_IN_SECONDS) {
 			return false;
 		}
@@ -55,7 +54,7 @@ class WC_Webhook_Handler_Picksell_Pay extends WC_Gateway_Picksell_Pay {
 		$signed_payload = $timestamp . '.' . $raw_request_body;
 		$expected_signature = hash_hmac('sha256', $signed_payload, $this->private_key);
 
-		if (hash_equals($matches['signature'], $expected_signature)) {
+		if (hash_equals($request_headers['PICKSELL-SIGNATURE'], $expected_signature)) {
 			return true;
 		}
 
