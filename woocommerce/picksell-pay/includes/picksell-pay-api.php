@@ -73,6 +73,6 @@ class WC_PicksellPay_API {
 	}
 
 	public static function get_return_url($order_id) {
-		return wc_get_account_endpoint_url('view-order') . '=' . $order_id;
+		return wc_get_account_endpoint_url('view-order') . $order_id;
 	}
 }
