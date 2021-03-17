@@ -23,11 +23,11 @@ class WC_Webhook_Handler_Picksell_Pay extends WC_Gateway_Picksell_Pay {
 		$request_headers = array_change_key_case($this->get_request_headers(), CASE_UPPER);
 
 		if ($this->is_valid_request($request_headers, $raw_request_body)) {
-			$result = $this->process_webhook($raw_request_body);
-			wp_send_json($result, $result['status']);
+			$response = $this->process_webhook($raw_request_body);
+			wp_send_json($response, $response['status']);
 		} else {
-			$res = $this->make_response('request is not valid', 400);
-			wp_send_json($res, $res['status']);
+			$response = $this->make_response('request is not valid', 400);
+			wp_send_json($response, $response['status']);
 		}
 
 		exit;
@@ -98,7 +98,7 @@ class WC_Webhook_Handler_Picksell_Pay extends WC_Gateway_Picksell_Pay {
 			$this->fail_payment($order);
 			break;
 		default:
-			return $this->make_response('unknown status', 400);
+			return $this->make_response('unknown order status', 400);
 		}
 
 		return $this->make_response('success request', 200);

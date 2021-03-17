@@ -21,11 +21,10 @@ return apply_filters(
 			'default' => 'Picksell Pay',
 			'desc_tip' => true,
 		),
-		'dev_token' => array(
-			'title' => 'Merchant token (DEV)',
-			'description' => 'You can get the token in your personal account',
-			'type' => 'text',
-			'default' => '',
+		'webhook' => array(
+			'title' => 'Webhook Endpoints',
+			'type' => 'title',
+			'description' => 'Add this webhook url to Picksell Token Settings: ' . '<strong>' . get_option('siteUrl') . '?wc-api=wc_picksell_pay' . '</strong>',
 		),
 		'prod_token' => array(
 			'title' => 'Merchant token (PROD)',
@@ -33,15 +32,22 @@ return apply_filters(
 			'type' => 'text',
 			'default' => '',
 		),
-		'dev_private_key' => array(
-			'title' => 'Private key (DEV)',
+		'prod_private_key' => array(
+			'title' => 'Private key (PROD)',
+			'description' => 'You can get the private key in your personal account',
+			'type' => 'text',
+			'default' => '',
+		),
+		'dev_token' => array(
+			'title' => 'Merchant token (DEV)',
 			'description' => 'You can get the token in your personal account',
 			'type' => 'text',
 			'default' => '',
 		),
-		'prod_private_key' => array(
-			'title' => 'Private key (PROD)',
-			'description' => 'You can get the private key in your personal account',
+
+		'dev_private_key' => array(
+			'title' => 'Private key (DEV)',
+			'description' => 'You can get the token in your personal account',
 			'type' => 'text',
 			'default' => '',
 		),
