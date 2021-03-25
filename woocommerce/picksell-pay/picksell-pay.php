@@ -10,6 +10,9 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
+define('WC_PICKSELL_PAY_MAIN_FILE', __FILE__);
+define('WC_PICKSELL_PAY_VERSION', '1.0.0');
+
 add_action('plugins_loaded', 'woocommerce_gateway_picksell_pay');
 
 function woocommerce_gateway_picksell_pay() {
@@ -33,9 +36,9 @@ function woocommerce_gateway_picksell_pay() {
 			public function __wakeup() {}
 
 			public function __construct() {
-				require_once dirname(__FILE__) . '/includes/picksell-pay-api.php';
-				require_once dirname(__FILE__) . '/includes/picksell-pay-gateway.php';
-				require_once dirname(__FILE__) . '/includes/picksell-pay-webhook-handler.php';
+				require_once dirname(WC_PICKSELL_PAY_MAIN_FILE) . '/includes/picksell-pay-api.php';
+				require_once dirname(WC_PICKSELL_PAY_MAIN_FILE) . '/includes/picksell-pay-gateway.php';
+				require_once dirname(WC_PICKSELL_PAY_MAIN_FILE) . '/includes/picksell-pay-webhook-handler.php';
 
 				add_filter('woocommerce_payment_gateways', array($this, 'add_gateways'));
 			}
