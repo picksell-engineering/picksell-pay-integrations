@@ -21,6 +21,13 @@ return apply_filters(
 			'default' => 'Picksell Pay',
 			'desc_tip' => true,
 		),
+		'description' => array(
+			'title' => __('Description', 'woocommerce'),
+			'type' => 'text',
+			'description' => __('This controls the description which the user sees during checkout.', 'woocommerce'),
+			'default' => 'You will be redirect to PicksellPay',
+			'desc_tip' => true,
+		),
 		'webhook' => array(
 			'title' => 'Webhook Endpoints',
 			'type' => 'title',

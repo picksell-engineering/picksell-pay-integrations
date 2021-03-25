@@ -71,6 +71,8 @@ class WC_Webhook_Handler_Picksell_Pay extends WC_Gateway_Picksell_Pay {
 	public function success_payment($order) {
 		$order->payment_complete();
 		$order->save();
+
+		WC()->cart->empty_cart();
 	}
 
 	public function process_webhook($request_raw_body) {
