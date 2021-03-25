@@ -12,10 +12,16 @@ class WC_Gateway_Picksell_Pay extends WC_Payment_Gateway {
 		$this->method_title = 'Picksell Pay';
 		$this->method_description = 'Accept payment using PicksellPay';
 
+		$this->order_button_text = 'Proceed to PicksellPay';
+
+		$this->picksell_pay_url_icon = '<img src="' . WC_PICKSELL_PAY_PLUGIN_URL . '/assets/images/picksell-pay-button.svg" alt="PicksellPay" width=80/>';
+
 		$this->init_form_fields();
 		$this->init_settings();
 
 		$this->title = $this->get_option('title');
+		$this->description = $this->get_option('description');
+
 		$this->dev_mode = $this->get_option('dev_mode');
 		$this->token = $this->dev_mode === 'yes' ? $this->get_option('dev_token') : $this->get_option('prod_token');
 
@@ -25,15 +31,10 @@ class WC_Gateway_Picksell_Pay extends WC_Payment_Gateway {
 		WC_PicksellPay_API::set_environment($this->dev_mode);
 
 		add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
-
-		add_filter('woocommerce_order_button_html', array($this, 'custom_order_button_html'));
 	}
 
-	public function custom_order_button_html($button) {
-		// variable $button is HTML for place order button
-		// <button type="submit" class="button alt" name="woocommerce_checkout_place_order" id="place_order" value="Place order" data-value="Place order">Place order</button>
-
-		return $button;
+	public function get_icon() {
+		return apply_filters('woocommerce_gateway_icon', $this->picksell_pay_url_icon, $this->id);
 	}
 
 	public function init_form_fields() {
@@ -101,8 +102,6 @@ class WC_Gateway_Picksell_Pay extends WC_Payment_Gateway {
 
 		$order->update_meta_data('picksell_order_id', $picksell_order_id, true);
 		$order->save();
-
-		WC()->cart->empty_cart();
 
 		return array(
 			'result' => 'success',
