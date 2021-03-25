@@ -25,6 +25,15 @@ class WC_Gateway_Picksell_Pay extends WC_Payment_Gateway {
 		WC_PicksellPay_API::set_environment($this->dev_mode);
 
 		add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
+
+		add_filter('woocommerce_order_button_html', array($this, 'custom_order_button_html'));
+	}
+
+	public function custom_order_button_html($button) {
+		// variable $button is HTML for place order button
+		// <button type="submit" class="button alt" name="woocommerce_checkout_place_order" id="place_order" value="Place order" data-value="Place order">Place order</button>
+
+		return $button;
 	}
 
 	public function init_form_fields() {
