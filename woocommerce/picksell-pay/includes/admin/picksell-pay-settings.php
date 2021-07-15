@@ -33,33 +33,26 @@ return apply_filters(
 			'type' => 'title',
 			'description' => 'Add this webhook url to Picksell Token Settings: ' . '<strong>' . get_option('siteUrl') . '?wc-api=wc_picksell_pay' . '</strong>',
 		),
-		'prod_token' => array(
-			'title' => 'Merchant token (PROD)',
+		'api_merchant_id' => array(
+			'title' => 'Merchant ID',
+			'description' => 'You can get the Merchant ID your personal account',
+			'type' => 'text',
+			'default' => '',
+		),
+		'api_token' => array(
+			'title' => 'API key',
 			'description' => 'You can get the token in your personal account',
 			'type' => 'text',
 			'default' => '',
 		),
-		'prod_private_key' => array(
-			'title' => 'Private key (PROD)',
-			'description' => 'You can get the private key in your personal account',
-			'type' => 'text',
-			'default' => '',
-		),
-		'dev_token' => array(
-			'title' => 'Merchant token (DEV)',
-			'description' => 'You can get the token in your personal account',
-			'type' => 'text',
-			'default' => '',
-		),
-
-		'dev_private_key' => array(
-			'title' => 'Private key (DEV)',
-			'description' => 'You can get the token in your personal account',
+		'api_secret' => array(
+			'title' => 'API secret',
+			'description' => 'You can get the secret in your personal account',
 			'type' => 'text',
 			'default' => '',
 		),
 		'dev_mode' => array(
-			'title' => __('Enable/Disable', 'woocommerce'),
+			'title' => __('Development mode', 'woocommerce'),
 			'type' => 'checkbox',
 			'label' => 'Use DEV environment on Picksell Pay',
 			'default' => 'no',
