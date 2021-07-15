@@ -3,8 +3,8 @@
 /**
  * Plugin Name: Picksell Pay
  * Description: Acceptance of payments through the system Picksell Pay
- * Author: PicksellPay
- * Version: 0.0.1
+ * Author: Picksell LTD
+ * Version: 1.0.0
  */
 if (!defined('ABSPATH')) {
 	exit;
