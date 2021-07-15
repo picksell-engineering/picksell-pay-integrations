@@ -5,8 +5,8 @@ if (!defined('ABSPATH')) {
 }
 
 class WC_PicksellPay_API {
-	const SKD_URL_DEV = 'https://sdk.psd2.club/orders';
-	const SKD_URL_PROD = 'https://sdk.picksell.eu/orders';
+	const SKD_URL_DEV = 'https://sdk.psd2.club/transactions';
+	const SKD_URL_PROD = 'https://sdk.picksell.eu/transactions';
 	const SHOPPING_URL_DEV = 'https://psd2.club';
 	const SHOPPING_URL_PROD = 'https://picksell.eu';
 
