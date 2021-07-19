@@ -1,10 +1,11 @@
 <?php
 
 /**
- * Plugin Name: Picksell Pay
- * Description: Acceptance of payments through the system Picksell Pay
- * Author: Picksell LTD
- * Version: 1.0.0
+ * Plugin Name: Picksell Pay for WooCommerce
+ * Description: Accept bank to bank payment using Picksell Pay
+ * Author:      Picksell LTD
+ * Author URI:  https://picksell.eu
+ * Version:     1.0.0
  */
 if (!defined('ABSPATH')) {
 	exit;
