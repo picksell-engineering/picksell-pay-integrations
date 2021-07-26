@@ -2,7 +2,7 @@
 
 /**
  * Plugin Name: Picksell Pay for WooCommerce
- * Description: Accept bank to bank payment using Picksell Pay
+ * Description: Accept bank to bank payments using Picksell Pay
  * Author:      Picksell LTD
  * Author URI:  https://picksell.eu
  * Version:     1.0.0
@@ -21,7 +21,7 @@ function woocommerce_gateway_picksell_pay() {
 
 	static $plugin;
 
-	if (!isset($plugin)) {
+	if (!isset($plugin) && class_exists('WC_Gateway_Picksell_Pay')) {
 
 		class WC_Picksell_Pay {
 			private static $instance;
