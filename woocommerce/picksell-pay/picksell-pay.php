@@ -17,11 +17,20 @@ define('WC_PICKSELL_PAY_PLUGIN_URL', untrailingslashit(plugins_url(basename(plug
 
 add_action('plugins_loaded', 'woocommerce_gateway_picksell_pay');
 
+function woocommerce_picksell_pay_missing_wc_notice() {
+	echo '<div class="error"><p><strong>' . sprintf( esc_html__( 'Picksell Pay requires WooCommerce to be installed and active. You can download %s here.', 'woocommerce-picksell-pay' ), '<a href="https://woocommerce.com/" target="_blank">WooCommerce</a>' ) . '</strong></p></div>';
+}
+
 function woocommerce_gateway_picksell_pay() {
 
 	static $plugin;
 
-	if (!isset($plugin) && class_exists('WC_Gateway_Picksell_Pay')) {
+	if (!class_exists('WooCommerce')) {
+		add_action( 'admin_notices', 'woocommerce_picksell_pay_missing_wc_notice' );
+		return;
+	}
+
+	if (!isset($plugin)) {
 
 		class WC_Picksell_Pay {
 			private static $instance;
