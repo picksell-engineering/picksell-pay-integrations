@@ -102,11 +102,12 @@ class Prestashop_picksell_payWebhookModuleFrontController extends ModuleFrontCon
 		return new Order($orderIdRef['id_order']);
     }
 
-    private function check_total_amount($order, $request_total_amount) {
-    if ((string)$order->getTotalPaid() === $request_total_amount) {
-        return true;
-    }
+    private function check_total_amount($order, $request_total_amount)
+    {
+        if ((string)$order->getTotalPaid() === $request_total_amount) {
+            return true;
+        }
 
-    return false;
-}
+        return false;
+    }
 }
