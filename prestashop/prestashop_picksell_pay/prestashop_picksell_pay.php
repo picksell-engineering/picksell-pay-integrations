@@ -103,6 +103,10 @@ class Prestashop_picksell_pay extends PaymentModule
             return;
         }
 
+        if (!$this->checkMinimumAmount($params['cart'])) {
+            return;
+        }
+
         $payment_options = [
             $this->getExternalPaymentOption($params),
         ];
@@ -114,56 +118,39 @@ class Prestashop_picksell_pay extends PaymentModule
     {
         $currency_order = new Currency($cart->id_currency);
         $currencies_module = $this->getCurrency($cart->id_currency);
+        $result = false;
 
         if (is_array($currencies_module)) {
             foreach ($currencies_module as $currency_module) {
                 if ($currency_order->id == $currency_module['id_currency']) {
-                    return true;
+                    $result = true;
                 }
             }
         }
-        return false;
+        $result = $result && (Currency::getIsoCodeById((int)$cart-id_currency) == 'EUR');
+        return $result;
+    }
+
+    public function checkMinimumAmount($cart)
+    {
+        $total = (float)$cart->getOrderTotal(true, Cart::BOTH);
+        return $total >= 0.01;
     }
 
     public function getExternalPaymentOption()
     {
-        if (!Configuration::hasKey('PS_OS_WAITING_PICKSELL_PAYMENT')) {
-            $orderStateObj = new OrderState();
-            $orderStateObj->send_email = 0;
-            $orderStateObj->module_name = $this->name;
-            $orderStateObj->invoice = 1;
-            $orderStateObj->color = '#34209E';
-            $orderStateObj->logable = 0;
-            $orderStateObj->shipped = 0;
-            $orderStateObj->unremovable = 1;
-            $orderStateObj->delivery = 0;
-            $orderStateObj->hidden = 0;
-            $orderStateObj->paid = 0;
-            $orderStateObj->pdf_delivery = 0;
-            $orderStateObj->pdf_invoice = 1;
-            $orderStateObj->deleted = 0;
-            $orderStateObj->name = 'Waiting Picksell payment';
-            $orderStateObj->add();
-        }
         $externalOption = new PaymentOption();
-        $externalOption->setCallToActionText($this->l('Picksell Pay'))
-                       ->setAction($this->context->link->getModuleLink($this->name, 'validation', array(), true))
+        $externalOption->setAction($this->context->link->getModuleLink($this->name, 'validation', array(), true))
                        ->setAdditionalInformation($this->context->smarty->fetch('module:prestashop_picksell_pay/views/templates/front/payment_infos.tpl'))
-                       ->setLogo(Media::getMediaPath(_PS_MODULE_DIR_.$this->name.'/payment.jpg'));
+                       ->setLogo(Media::getMediaPath(_PS_MODULE_DIR_.$this->name.'/payment.png'))
+                       ->setCallToActionText($this->l('Picksell Pay'));
 
         return $externalOption;
     }
 
-    public function hookActionObjectAddAfter($objectState)
-    {
-        if ($objectState->name == 'Waiting Picksell payment') {
-            Configuration::updateValue('PS_OS_WAITING_PICKSELL_PAYMENT', $objectState->id);
-        }
-    }
-
     public function hookPaymentReturn($params)
     {
-        $params['order']->setCurrentState(Configuration::get('PS_OS_WAITING_PICKSELL_PAYMENT'));
+        $params['order']->setCurrentState(Configuration::get('PS_OS_BANKWIRE'));
     }
 
     public function getContent() {
@@ -172,15 +159,21 @@ class Prestashop_picksell_pay extends PaymentModule
         // this part is executed only when the form is submitted
         if (Tools::isSubmit('submit' . $this->name)) {
             // retrieve the value set by the user
-            $configValue = (string) Tools::getValue('MYMODULE_CONFIG');
+            $merchantId = (string) Tools::getValue('PRESTASHOP_PICKSELL_PAY_MERCHANT_ID');
+            $apiKey = (string) Tools::getValue('PRESTASHOP_PICKSELL_PAY_API_KEY');
+            $apiSecret = (string) Tools::getValue('PRESTASHOP_PICKSELL_PAY_API_SECRET');
+            $devMode = (boolean) Tools::getValue('PRESTASHOP_PICKSELL_PAY_DEV_MODE');
 
             // check that the value is valid
-            if (empty($configValue) || !Validate::isGenericName($configValue)) {
+            if (empty($merchantId) || empty($apiKey) || empty($apiSecret)) {
                 // invalid value, show an error
                 $output = $this->displayError($this->l('Invalid Configuration value'));
             } else {
                 // value is ok, update it and display a confirmation message
-                Configuration::updateValue('MYMODULE_CONFIG', $configValue);
+                Configuration::updateValue('PRESTASHOP_PICKSELL_PAY_MERCHANT_ID', $merchantId);
+                Configuration::updateValue('PRESTASHOP_PICKSELL_PAY_API_KEY', $apiKey);
+                Configuration::updateValue('PRESTASHOP_PICKSELL_PAY_API_SECRET', $apiSecret);
+                Configuration::updateValue('PRESTASHOP_PICKSELL_PAY_DEV_MODE', $devMode);
                 $output = $this->displayConfirmation($this->l('Settings updated'));
             }
         }
@@ -199,10 +192,46 @@ class Prestashop_picksell_pay extends PaymentModule
                 'input' => [
                     [
                         'type' => 'text',
-                        'label' => $this->l('Configuration value'),
-                        'name' => 'MYMODULE_CONFIG',
+                        'label' => $this->l('Picksell Pay Merchant ID'),
+                        'name' => 'PRESTASHOP_PICKSELL_PAY_MERCHANT_ID',
                         'size' => 20,
                         'required' => true,
+                    ],
+                    [
+                        'type' => 'text',
+                        'label' => $this->l('Picksell Pay API key'),
+                        'name' => 'PRESTASHOP_PICKSELL_PAY_API_KEY',
+                        'size' => 20,
+                        'required' => true,
+                    ],
+                    [
+                        'type' => 'text',
+                        'label' => $this->l('Picksell Pay API secret'),
+                        'name' => 'PRESTASHOP_PICKSELL_PAY_API_SECRET',
+                        'size' => 20,
+                        'required' => true,
+                    ],
+                    [
+                        'type' => 'text',
+                        'label' => $this->l('Picksell Pay Webhook URL'),
+                        'name' => 'PRESTASHOP_PICKSELL_PAY_WEBHOOK_URL',
+                        'size' => 20,
+                        'disabled' => true,
+                        'placeholder' => Tools::getHttpHost(true).__PS_BASE_URI__.'index.php?fc=module&module=prestashop_picksell_pay&controller=webhook'
+                    ],
+                    [
+                        'type' => 'switch',
+                        'label' => $this->l('Dev mode'),
+                        'desc' => 'Use this only for testing or development',
+                        'name' => 'PRESTASHOP_PICKSELL_PAY_DEV_MODE',
+                        'required' => true,
+                        'values' => [[
+                            'id' => 'active_on',
+                            'value' => 1,
+                            'label' => $this->l('Yes')], [
+                            'id' => 'active_off',
+                            'value' => 0,
+                            'label' => $this->l('No')]]
                     ],
                 ],
                 'submit' => [
@@ -225,7 +254,10 @@ class Prestashop_picksell_pay extends PaymentModule
         $helper->default_form_language = (int) Configuration::get('PS_LANG_DEFAULT');
 
         // Load current value into the form
-        $helper->fields_value['MYMODULE_CONFIG'] = Tools::getValue('MYMODULE_CONFIG', Configuration::get('MYMODULE_CONFIG'));
+        $helper->fields_value['PRESTASHOP_PICKSELL_PAY_MERCHANT_ID'] = Tools::getValue('PRESTASHOP_PICKSELL_PAY_MERCHANT_ID', Configuration::get('PRESTASHOP_PICKSELL_PAY_MERCHANT_ID'));
+        $helper->fields_value['PRESTASHOP_PICKSELL_PAY_API_KEY'] = Tools::getValue('PRESTASHOP_PICKSELL_PAY_API_KEY', Configuration::get('PRESTASHOP_PICKSELL_PAY_API_KEY'));
+        $helper->fields_value['PRESTASHOP_PICKSELL_PAY_API_SECRET'] = Tools::getValue('PRESTASHOP_PICKSELL_PAY_API_SECRET', Configuration::get('PRESTASHOP_PICKSELL_PAY_API_SECRET'));
+        $helper->fields_value['PRESTASHOP_PICKSELL_PAY_DEV_MODE'] = Tools::getValue('PRESTASHOP_PICKSELL_PAY_DEV_MODE', Configuration::get('PRESTASHOP_PICKSELL_PAY_DEV_MODE'));
 
         return $helper->generateForm([$form]);
     }

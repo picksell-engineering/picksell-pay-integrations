@@ -1,37 +1,14 @@
 <?php
-/*
-* 2007-2015 PrestaShop
-*
-* NOTICE OF LICENSE
-*
-* This source file is subject to the Academic Free License (AFL 3.0)
-* that is bundled with this package in the file LICENSE.txt.
-* It is also available through the world-wide-web at this URL:
-* http://opensource.org/licenses/afl-3.0.php
-* If you did not receive a copy of the license and are unable to
-* obtain it through the world-wide-web, please send an email
-* to license@prestashop.com so we can send you a copy immediately.
-*
-* DISCLAIMER
-*
-* Do not edit or add to this file if you wish to upgrade PrestaShop to newer
-* versions in the future. If you wish to customize PrestaShop for your
-* needs please refer to http://www.prestashop.com for more information.
-*
-*  @author PrestaShop SA <contact@prestashop.com>
-*  @copyright  2007-2015 PrestaShop SA
-*  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
-*  International Registered Trademark & Property of PrestaShop SA
-*/
-
-/**
- * @since 1.5.0
- */
 
 use Symfony\Component\HttpClient\HttpClient;
 
+
 class Prestashop_picksell_payValidationModuleFrontController extends ModuleFrontController
 {
+
+    const SDK_URL_DEV = 'https://sdk.psd2.club/transactions';
+    const SDK_URL_PROD = 'https://sdk.picksell.eu/transactions';
+
     /**
      * @see FrontController::postProcess()
      */
@@ -73,14 +50,18 @@ class Prestashop_picksell_payValidationModuleFrontController extends ModuleFront
         $total = (float)$cart->getOrderTotal(true, Cart::BOTH);
 
         $client = HttpClient::create(['verify_peer' => false, 'verify_host' => false]);
-        $response = $client->request('POST', 'https://sdk.psd2.club/transactions', [
+        $host = Configuration::get('PRESTASHOP_PICKSELL_PAY_DEV_MODE') === '1' ? self::SDK_URL_DEV : self::SDK_URL_PROD;
+        $merchantId = Configuration::get('PRESTASHOP_PICKSELL_PAY_MERCHANT_ID');
+        $apiKey = Configuration::get('PRESTASHOP_PICKSELL_PAY_API_KEY');
+
+        $response = $client->request('POST', $host, [
             'json' => [
                 'totalAmount' => (string)$cart->getOrderTotal(true, Cart::BOTH),
                 'currency' => Currency::getIsoCodeById($cart->id_currency),
                 'description' => 'New PrestaShop Order cart id ' . $cart->id,
                 'returnUrl' => Tools::getHttpHost(true).__PS_BASE_URI__.'index.php?controller=order-confirmation&id_cart='.$cart->id.'&id_module='.$this->module->id.'&id_order='.$this->module->currentOrder.'&key='.$customer->secure_key,
             ],
-            'auth_basic' => '247:Q~-dSdP0S6l9itWClUGw13V7g23H8MADCjRdGfIq'
+            'auth_basic' => $merchantId.':'.$apiKey
         ]);
         PrestaShopLogger::addLog($response->getContent(false));
         $statusCode = $response->getStatusCode();
