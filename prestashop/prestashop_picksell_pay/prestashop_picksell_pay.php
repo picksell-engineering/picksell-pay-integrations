@@ -193,7 +193,7 @@ class Prestashop_picksell_pay extends PaymentModule
                         'name' => 'PRESTASHOP_PICKSELL_PAY_WEBHOOK_URL',
                         'size' => 20,
                         'disabled' => true,
-                        'placeholder' => Tools::getHttpHost(true).__PS_BASE_URI__.'index.php?fc=module&module=prestashop_picksell_pay&controller=webhook'
+                        'desc' => 'Use this link in Picksell Pay API key\'s Webhook URL'
                     ],
                     [
                         'type' => 'switch',
@@ -234,6 +234,7 @@ class Prestashop_picksell_pay extends PaymentModule
         $helper->fields_value['PRESTASHOP_PICKSELL_PAY_API_KEY'] = Tools::getValue('PRESTASHOP_PICKSELL_PAY_API_KEY', Configuration::get('PRESTASHOP_PICKSELL_PAY_API_KEY'));
         $helper->fields_value['PRESTASHOP_PICKSELL_PAY_API_SECRET'] = Tools::getValue('PRESTASHOP_PICKSELL_PAY_API_SECRET', Configuration::get('PRESTASHOP_PICKSELL_PAY_API_SECRET'));
         $helper->fields_value['PRESTASHOP_PICKSELL_PAY_DEV_MODE'] = Tools::getValue('PRESTASHOP_PICKSELL_PAY_DEV_MODE', Configuration::get('PRESTASHOP_PICKSELL_PAY_DEV_MODE'));
+        $helper->fields_value['PRESTASHOP_PICKSELL_PAY_WEBHOOK_URL'] = $this->context->link->getModuleLink($this->name, 'webhook', array(), true);
 
         return $helper->generateForm([$form]);
     }
