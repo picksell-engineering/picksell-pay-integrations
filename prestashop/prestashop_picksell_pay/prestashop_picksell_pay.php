@@ -103,7 +103,7 @@ class Prestashop_picksell_pay extends PaymentModule
                 }
             }
         }
-        $result = $result && (Currency::getIsoCodeById((int)$cart-id_currency) == 'EUR');
+        $result = $result && (Currency::getIsoCodeById((int)$cart->id_currency) == 'EUR');
         return $result;
     }
 
