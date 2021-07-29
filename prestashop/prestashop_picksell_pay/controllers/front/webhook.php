@@ -16,18 +16,18 @@ class Prestashop_picksell_payWebhookModuleFrontController extends ModuleFrontCon
             die('bad request');
         }
 
-        $order = $this->get_order_by_picksell_id($input['payload']['transactionId']);
+        $order = $this->get_order_by_picksell_id($input['transactionId']);
         if (!$order) {
             http_response_code(404);
             die('order not found');
         }
 
-        if (!$this->check_total_amount($order, $input['payload']['totalAmount'])) {
+        if (!$this->check_total_amount($order, $input['totalAmount'])) {
             http_response_code(400);
             die('invalid order amount');
         }
 
-        switch ($input['payload']['status']) {
+        switch ($input['status']) {
             case 'PAYMENT_SUCCESS':
                 $order->setCurrentState(Configuration::get('PS_OS_PAYMENT'));
                 break;
@@ -47,10 +47,6 @@ class Prestashop_picksell_payWebhookModuleFrontController extends ModuleFrontCon
             return false;
         }
 
-        if (empty($this->private_key)) {
-            return false;
-        }
-
         if (empty($request_headers['PICKSELL-SIGNATURE']) || empty($request_headers['PICKSELL-TIMESTAMP'])) {
             return false;
         }
@@ -62,7 +58,6 @@ class Prestashop_picksell_payWebhookModuleFrontController extends ModuleFrontCon
 
         $signed_payload = $timestamp . '.' . $raw_request_body;
         $expected_signature = hash_hmac('sha256', $signed_payload, Configuration::get('PRESTASHOP_PICKSELL_PAY_API_SECRET'));
-
         if (hash_equals($request_headers['PICKSELL-SIGNATURE'], $expected_signature)) {
             return true;
         }
@@ -89,12 +84,12 @@ class Prestashop_picksell_payWebhookModuleFrontController extends ModuleFrontCon
 
     private function get_order_by_picksell_id($picksell_order_id)
     {
-		$orderPaymentRef = Db::getInstance()->getRow('SELECT id_order_payment FROM `' . _DB_PREFIX_ . 'order_payment` WHERE transaction_id = ' . pSQL($picksell_order_id));
-		if (!$orderPaymentRef || !isset($orderRef['id_order_payment'])) {
+		$orderPaymentRef = Db::getInstance()->getRow('SELECT id_order_payment FROM `' . _DB_PREFIX_ . 'order_payment` WHERE transaction_id = \'' . pSQL($picksell_order_id) . '\'');
+		if (!$orderPaymentRef || !isset($orderPaymentRef['id_order_payment'])) {
 		    return false;
         }
 
-		$orderIdRef = Db::getInstance()->getRow('SELECT id_order FROM `' . _DB_PREFIX_ . 'order_invoice_payment` WHERE id_order_payment = ' . (int)$orderRef['id_order_payment']);;
+		$orderIdRef = Db::getInstance()->getRow('SELECT id_order FROM `' . _DB_PREFIX_ . 'order_invoice_payment` WHERE id_order_payment = ' . (int)$orderPaymentRef['id_order_payment']);;
         if (!$orderIdRef || !isset($orderIdRef['id_order'])) {
             return false;
         }
@@ -102,12 +97,11 @@ class Prestashop_picksell_payWebhookModuleFrontController extends ModuleFrontCon
 		return new Order($orderIdRef['id_order']);
     }
 
-    private function check_total_amount($order, $request_total_amount)
-    {
-        if ((string)$order->getTotalPaid() === $request_total_amount) {
-            return true;
-        }
-
-        return false;
+    private function check_total_amount($order, $request_total_amount) {
+    if ((string)$order->getTotalPaid() === $request_total_amount) {
+        return true;
     }
+
+    return false;
+}
 }
