@@ -2,4 +2,4 @@
 
 ## Supported CMS
 
-- [WooCommerce (Wordpress)](https://github.com/picksell-engineering/picksell-pay-integrations/releases/download/1.0.0/wp-picksell-pay.zip)
+- [WooCommerce (Wordpress)](https://wordpress.org/plugins/picksell-pay-for-woocommerce/)

@@ -5,14 +5,14 @@
  * Description: Accept SEPA bank payments through OpenBanking with minimum fees by Picksell Pay
  * Author:      Picksell LTD
  * Author URI:  https://picksell.eu
- * Version:     1.0.0
+ * Version:     1.0.1
  */
 if (!defined('ABSPATH')) {
 	exit;
 }
 
 define('WC_PICKSELL_PAY_MAIN_FILE', __FILE__);
-define('WC_PICKSELL_PAY_VERSION', '1.0.0');
+define('WC_PICKSELL_PAY_VERSION', '1.0.1');
 define('WC_PICKSELL_PAY_PLUGIN_URL', untrailingslashit(plugins_url(basename(plugin_dir_path(__FILE__)), basename(__FILE__))));
 
 add_action('plugins_loaded', 'woocommerce_gateway_picksell_pay');
