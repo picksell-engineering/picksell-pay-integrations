@@ -10,11 +10,11 @@ class WC_Gateway_Picksell_Pay extends WC_Payment_Gateway {
 		$this->has_fields = false;
 
 		$this->method_title = 'Picksell Pay';
-		$this->method_description = 'Accept payment using PicksellPay';
+		$this->method_description = 'Accept SEPA bank payments through OpenBanking with minimum fees by Picksell Pay';
 
-		$this->order_button_text = 'Proceed to PicksellPay';
+		$this->order_button_text = 'Proceed to Picksell Pay';
 
-		$this->picksell_pay_url_icon = '<img src="' . WC_PICKSELL_PAY_PLUGIN_URL . '/assets/images/picksell-pay-button.svg" alt="PicksellPay" width=80/>';
+		$this->picksell_pay_url_icon = '<img src="' . WC_PICKSELL_PAY_PLUGIN_URL . '/assets/images/picksell-pay-button.svg" alt="Picksell Pay" width=80/>';
 
 		$this->init_form_fields();
 		$this->init_settings();
@@ -89,9 +89,9 @@ class WC_Gateway_Picksell_Pay extends WC_Payment_Gateway {
 			);
 		}
 
-		$picksell_order_id = WC_PicksellPay_API::create_picksell_order($order);
+		$picksell_order = WC_PicksellPay_API::create_picksell_order($order);
 
-		if (!$picksell_order_id) {
+		if (!$picksell_order) {
 			return array(
 				'result' => 'fail',
 				'redirect' => '',
@@ -100,12 +100,12 @@ class WC_Gateway_Picksell_Pay extends WC_Payment_Gateway {
 
 		$order->update_status('pending', 'Payment pending');
 
-		$order->update_meta_data('picksell_order_id', $picksell_order_id, true);
+		$order->update_meta_data('picksell_order_id', $picksell_order->id, true);
 		$order->save();
 
 		return array(
 			'result' => 'success',
-			'redirect' => WC_PicksellPay_API::get_order_page_url($picksell_order_id),
+			'redirect' => $picksell_order->paymentUrl
 		);
 	}
 }

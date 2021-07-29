@@ -6,9 +6,17 @@ Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
  
-Accept bank to bank payments online with minimum fees
+Accept SEPA bank payments through OpenBanking with minimum fees by Picksell Pay
  
 == Description ==
  
-This plugin allows you to accept bank to bank payments via Picksell Pay.
+Accept instant online SEPA payments from your clients directly on your bank account with PicksellPay payment gateway for WooCommerce. 
+
+No matter what banks and cards you and your clients use, PicksellPay connects your accounts directly without extra fees and meeting high data security requirements.
+
+No monthly or hidden fees, you pay only when you make a sale. Same fixed transaction fees for all-sized businesses.
+€0 monthly + (0.9% + €0.25 per payment) 
+
+Super-fast to connect PicksellPay: no need to uploaded any documents, connect your bank account and go!
+
 Learn more https://picksell.eu/payment-method/

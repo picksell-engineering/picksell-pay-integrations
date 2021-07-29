@@ -2,7 +2,7 @@
 
 /**
  * Plugin Name: Picksell Pay for WooCommerce
- * Description: Accept bank to bank payments using Picksell Pay
+ * Description: Accept SEPA bank payments through OpenBanking with minimum fees by Picksell Pay
  * Author:      Picksell LTD
  * Author URI:  https://picksell.eu
  * Version:     1.0.0

@@ -53,7 +53,7 @@ class WC_PicksellPay_API {
 		$response_body = json_decode($response['body']);
 
 		if (property_exists($response_body, 'payload')) {
-			return $response_body->payload->id;
+			return $response_body->payload;
 		}
 
 		return null;
@@ -61,10 +61,6 @@ class WC_PicksellPay_API {
 
 	public static function get_sdk_url() {
 		return self::$dev_mode ? self::SKD_URL_DEV : self::SKD_URL_PROD;
-	}
-
-	public static function get_order_page_url($picksell_order_id) {
-		return (self::$dev_mode ? self::SHOPPING_URL_DEV : self::SHOPPING_URL_PROD) . '/orders/' . $picksell_order_id;
 	}
 
 	public static function get_return_url($order_id) {
