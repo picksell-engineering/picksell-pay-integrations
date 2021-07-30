@@ -126,7 +126,9 @@ class Prestashop_picksell_pay extends PaymentModule
 
     public function hookPaymentReturn($params)
     {
-        $params['order']->setCurrentState(Configuration::get('PS_OS_BANKWIRE'));
+        if (($params['order']->getCurrentOrderState())->id == Configuration::get('PS_OS_CHEQUE')) {
+            $params['order']->setCurrentState(Configuration::get('PS_OS_BANKWIRE'));
+        }
     }
 
     public function getContent() {
