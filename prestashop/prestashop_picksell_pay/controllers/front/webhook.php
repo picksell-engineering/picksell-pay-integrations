@@ -87,24 +87,25 @@ class Prestashop_picksell_payWebhookModuleFrontController extends ModuleFrontCon
 
     private function get_order_by_picksell_id($picksell_order_id)
     {
-		$orderPaymentRef = Db::getInstance()->getRow('SELECT id_order_payment FROM `' . _DB_PREFIX_ . 'order_payment` WHERE transaction_id = \'' . pSQL($picksell_order_id) . '\'');
-		if (!$orderPaymentRef || !isset($orderPaymentRef['id_order_payment'])) {
-		    return false;
+		    $orderPaymentRef = Db::getInstance()->getRow('SELECT id_order_payment FROM `' . _DB_PREFIX_ . 'order_payment` WHERE transaction_id = \'' . pSQL($picksell_order_id) . '\'');
+		    if (!$orderPaymentRef || !isset($orderPaymentRef['id_order_payment'])) {
+		      return false;
         }
 
-		$orderIdRef = Db::getInstance()->getRow('SELECT id_order FROM `' . _DB_PREFIX_ . 'order_invoice_payment` WHERE id_order_payment = ' . (int)$orderPaymentRef['id_order_payment']);;
+		    $orderIdRef = Db::getInstance()->getRow('SELECT id_order FROM `' . _DB_PREFIX_ . 'order_invoice_payment` WHERE id_order_payment = ' . (int)$orderPaymentRef['id_order_payment']);;
         if (!$orderIdRef || !isset($orderIdRef['id_order'])) {
             return false;
         }
 
-		return new Order($orderIdRef['id_order']);
+		    return new Order($orderIdRef['id_order']);
     }
 
-    private function check_total_amount($order, $request_total_amount) {
-    if ((string)$order->getTotalPaid() === $request_total_amount) {
-        return true;
-    }
+    private function check_total_amount($order, $request_total_amount)
+    {
+        if ((string)$order->getTotalPaid() === $request_total_amount) {
+            return true;
+        }
 
-    return false;
-}
+        return false;
+    }
 }
