@@ -102,7 +102,7 @@ class Prestashop_picksell_payWebhookModuleFrontController extends ModuleFrontCon
 
     private function check_total_amount($order, $request_total_amount)
     {
-        if ((string)$order->getTotalPaid() === $request_total_amount) {
+        if (number_format($order->getTotalPaid(), 2, '.', '') === $request_total_amount) {
             return true;
         }
 

@@ -72,7 +72,7 @@ class Prestashop_picksell_payValidationModuleFrontController extends ModuleFront
         $responseArray = $response->toArray();
         $this->module->validateOrder(
             $cart->id,
-            Configuration::get('PS_OS_CHEQUE'),
+            Configuration::get('PS_OS_PREPARATION'),
             $total,
             $this->module->displayName,
             NULL,
