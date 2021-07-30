@@ -47,18 +47,21 @@ class Prestashop_picksell_payWebhookModuleFrontController extends ModuleFrontCon
             return false;
         }
 
-        if (empty($request_headers['PICKSELL-SIGNATURE']) || empty($request_headers['PICKSELL-TIMESTAMP'])) {
+        $sign = empty($request_headers['PICKSELL-SIGNATURE']) ? $request_headers['picksell-signature'] : $request_headers['PICKSELL-SIGNATURE'];
+        $ts = empty($request_headers['PICKSELL-TIMESTAMP']) ? $request_headers['picksell-timestamp'] : $request_headers['PICKSELL-TIMESTAMP'];
+        if (empty($sign) || empty($ts)) {
             return false;
         }
 
-        $timestamp = intval($request_headers['PICKSELL-TIMESTAMP']);
+        $timestamp = intval($ts);
         if (abs($timestamp - time()) < 5 * 60 /* 5 minutes */) {
             return false;
         }
 
         $signed_payload = $timestamp . '.' . $raw_request_body;
         $expected_signature = hash_hmac('sha256', $signed_payload, Configuration::get('PRESTASHOP_PICKSELL_PAY_API_SECRET'));
-        if (hash_equals($request_headers['PICKSELL-SIGNATURE'], $expected_signature)) {
+
+        if (hash_equals($sign, $expected_signature)) {
             return true;
         }
 
