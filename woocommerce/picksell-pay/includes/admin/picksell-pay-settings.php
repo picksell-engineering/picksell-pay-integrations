@@ -10,7 +10,7 @@ return apply_filters(
 		'enabled' => array(
 			'title' => __('Enable/Disable', 'woocommerce'),
 			'type' => 'checkbox',
-			'label' => 'Enable payment with Picksell.Pay',
+			'label' => 'Enable payment with Picksell Pay',
 			'default' => 'no',
 			'description' => '<a href="https://picksell.eu" target="_blank">Additional information</a>',
 		),
@@ -25,7 +25,7 @@ return apply_filters(
 			'title' => __('Description', 'woocommerce'),
 			'type' => 'text',
 			'description' => __('This controls the description which the user sees during checkout.', 'woocommerce'),
-			'default' => 'You will be redirect to PicksellPay',
+			'default' => 'You will be redirect to Picksell Pay',
 			'desc_tip' => true,
 		),
 		'webhook' => array(
