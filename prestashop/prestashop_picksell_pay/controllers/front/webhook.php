@@ -11,33 +11,38 @@ class Prestashop_picksell_payWebhookModuleFrontController extends ModuleFrontCon
         $this->json = true;
         $inputJSON = file_get_contents('php://input');
         $input = json_decode($inputJSON, TRUE); //convert JSON into array
+
         if (!$this->is_valid_request($this->get_request_headers(), $inputJSON)) {
             http_response_code(400);
             die('bad request');
         }
 
-        $order = $this->get_order_by_picksell_id($input['transactionId']);
+        $transactionId = $input['transaction']['id'];
+        $totalAmount = $input['transaction']['totalAmount'];
+        $status = $input['transaction']['status'];
+        $isStatusSuccessful = $status === 'PAYMENT_SUCCESS';
+        $isStatusFailed = $status === 'PAYMENT_FAILED';
+
+        $order = $this->get_order_by_picksell_id($transactionId);
         if (!$order) {
             http_response_code(404);
             die('order not found');
         }
 
-        if (!$this->check_total_amount($order, $input['totalAmount'])) {
+        if (!$this->check_total_amount($order, $totalAmount)) {
             http_response_code(400);
             die('invalid order amount');
         }
 
-        switch ($input['status']) {
-            case 'PAYMENT_SUCCESS':
-                $order->setCurrentState(Configuration::get('PS_OS_PAYMENT'));
-                break;
-            case 'PAYMENT_FAILED':
-                $order->setCurrentState(Configuration::get('PS_OS_ERROR'));
-                break;
-            default:
-                http_response_code(400);
-                die('invalid order status');
+        if ($isStatusSuccessful) {
+            $order->setCurrentState(Configuration::get('PS_OS_PAYMENT'));
+        } else if ($isStatusFailed) {
+            $order->setCurrentState(Configuration::get('PS_OS_ERROR'));
+        } else {
+            http_response_code(400);
+            die('invalid order status');
         }
+
         die('success');
     }
 

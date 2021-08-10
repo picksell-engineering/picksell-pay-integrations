@@ -76,9 +76,9 @@ class WC_Webhook_Handler_Picksell_Pay extends WC_Gateway_Picksell_Pay {
 	public function process_webhook($request_raw_body) {
 		$request_body = json_decode($request_raw_body);
 
-		$status = $request_body->status;
-		$picksell_order_id = $request_body->transactionId;
-		$request_total_amount = $request_body->totalAmount;
+		$status = $request_body->transaction->status;
+		$picksell_order_id = $request_body->transaction->id;
+		$request_total_amount = $request_body->transaction->totalAmount;
 
 		$order = $this->get_order_by_picksell_id($picksell_order_id);
 
