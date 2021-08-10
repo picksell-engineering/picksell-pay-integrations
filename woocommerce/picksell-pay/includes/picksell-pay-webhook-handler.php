@@ -93,7 +93,7 @@ class WC_Webhook_Handler_Picksell_Pay extends WC_Gateway_Picksell_Pay {
 		switch ($status) {
 		case 'PAYMENT_ACCEPTED':
 			WC()->cart->empty_cart();
-			break;
+            return $this->make_response('payment accepted', 400);
 		case 'PAYMENT_SUCCESS':
 			$this->success_payment($order);
 			break;

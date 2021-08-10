@@ -20,7 +20,7 @@ class Prestashop_picksell_pay extends PaymentModule
     {
         $this->name = 'prestashop_picksell_pay';
         $this->tab = 'payments_gateways';
-        $this->version = '1.0.0';
+        $this->version = '1.0.1';
         $this->ps_versions_compliancy = array('min' => '1.7', 'max' => _PS_VERSION_);
         $this->author = 'PrestaShop';
         $this->controllers = array('validation');
@@ -118,7 +118,7 @@ class Prestashop_picksell_pay extends PaymentModule
         $externalOption = new PaymentOption();
         $externalOption->setAction($this->context->link->getModuleLink($this->name, 'validation', array(), true))
                        ->setAdditionalInformation($this->context->smarty->fetch('module:prestashop_picksell_pay/views/templates/front/payment_infos.tpl'))
-                       ->setLogo(Media::getMediaPath(_PS_MODULE_DIR_.$this->name.'/payment.png'))
+                       ->setLogo(Media::getMediaPath(_PS_MODULE_DIR_.$this->name.'/payment.svg'))
                        ->setCallToActionText($this->l('Picksell Pay'));
 
         return $externalOption;
