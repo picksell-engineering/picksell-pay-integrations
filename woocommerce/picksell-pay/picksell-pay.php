@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
 }
 
 define('WC_PICKSELL_PAY_MAIN_FILE', __FILE__);
-define('WC_PICKSELL_PAY_VERSION', '1.0.1');
+define('WC_PICKSELL_PAY_VERSION', '1.0.2');
 define('WC_PICKSELL_PAY_PLUGIN_URL', untrailingslashit(plugins_url(basename(plugin_dir_path(__FILE__)), basename(__FILE__))));
 
 add_action('plugins_loaded', 'woocommerce_gateway_picksell_pay');
